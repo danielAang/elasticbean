@@ -20,13 +20,13 @@ You must have [Docker](https://docs.docker.com/get-docker/) and [Docker-Compose]
 
 ### Installing
 
-After installing both dependencies, just clone this repo build the compose
+After installing both dependencies, just clone this repo and run:
 
 ```
 docker-compose build
 ```
 
-And then just run it
+And then:
 
 ```
 docker-compose up
