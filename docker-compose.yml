@@ -1,0 +1,70 @@
+version: '3.2'
+services: 
+    elasticsearch:
+        build:
+            context: elasticsearch/
+            args:
+              ELK_VERSION: $ELK_VERSION
+        ports: 
+            - '9200:9200'
+        volumes:
+            - type: bind
+              source: ./elasticsearch/config/elasticsearch.yml
+              target: /usr/share/elasticsearch/config/elasticsearch.yml
+            - type: volume
+              source: elasticsearch
+              target: /usr/share/elasticsearch/data
+        environment: 
+            ES_JAVA_OPTS: "-Xmx512m -Xms512m"
+            discovery.type: single-node
+        networks:
+            - elk
+        healthcheck:
+            test: ["CMD", "curl","-s" ,"-f", "-u", "elastic:changeme", "http://localhost:9200/_cat/health"]
+    logstash:
+        build:
+            context: logstash/
+            args:
+              ELK_VERSION: $ELK_VERSION
+        volumes:
+            - type: bind
+              source: ./logstash/config/logstash.yml
+              target: /usr/share/logstash/config/logstash.yml
+              read_only: true
+            - type: bind
+              source: ./logstash/pipeline/logstash.conf
+              target: /usr/share/logstash/pipeline/logstash.conf
+              read_only: true
+            - type: bind
+              source: ./logstash/data/
+              target: /usr/share/logstash/data/
+        ports:
+        - "9600:9600"
+        environment: 
+            LS_JAVA_OPTS: "-Xmx512m -Xms512m"
+        depends_on: ['elasticsearch']
+        networks: 
+            - elk
+    kibana:
+        build:
+            context: kibana/
+            args:
+              ELK_VERSION: $ELK_VERSION
+        ports: 
+            - "5601:5601"
+        volumes:
+            - type: bind
+              source: ./kibana/config/kibana.yml
+              target: /usr/share/kibana/config/kibana.yml
+              read_only: true
+        depends_on: ['elasticsearch']
+        networks: 
+            - elk
+        healthcheck:
+            test: ["CMD", "curl", "-s", "-f", "http://localhost:5601/login"]
+            
+networks: 
+    elk:
+        driver: bridge
+volumes: 
+    elasticsearch:        
