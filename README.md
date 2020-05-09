@@ -1,4 +1,4 @@
-# Elasticsearch Dev Environment
+# :whale2: Elasticsearch Dev Environment :whale2:
 
 ## Table of Contents
 
